@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drawn — Start drawing you.</title>
+  <meta name="description" content="Drawn is a social connection app for Millennials built on real conversation, not swiping. Apply for early access." />
+  <meta property="og:title" content="Drawn — Start drawing you." />
+  <meta property="og:description" content="A new kind of connection app. Built for depth, not volume." />
+  <meta property="og:url" content="https://getdrawn.app" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #EEEAF5;
+      --surface:   #F8F5FF;
+      --ink:       #1C1728;
+      --ink-soft:  #5C5472;
+      --accent:    #C4523A;
+      --accent-lt: #E8906C;
+      --plum:      #7B73CC;
+      --plum-lt:   #A59FDE;
+      --border:    rgba(124,115,190,0.18);
+      --shadow:    rgba(28,23,40,0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 2.5rem;
+      background: rgba(238,234,245,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .nav-cta {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid var(--accent);
+      padding: 0.45rem 1.1rem;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent); color: #fff; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Background orbs */
+    .hero::before, .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .hero::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, var(--plum-lt), transparent 70%);
+      top: -100px; right: -100px;
+    }
+    .hero::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--accent-lt), transparent 70%);
+      bottom: 0; left: -80px;
+    }
+
+    /* Portrait illustration */
+    .portrait-ring {
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--plum-lt) 0%, var(--accent-lt) 100%);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+      box-shadow: 0 20px 60px var(--shadow);
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
+    }
+    .portrait-ring svg { width: 88px; height: 88px; }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--plum);
+      margin-bottom: 1.25rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s ease forwards;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garant', serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.35s ease forwards;
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      font-weight: 300;
+      color: var(--ink-soft);
+      max-width: 480px;
+      margin: 0 auto 3rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.5s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── FORM ── */
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 8px 40px var(--shadow);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.65s ease forwards;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-row { margin-bottom: 1.1rem; }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+    .form-input::placeholder { color: var(--ink-soft); opacity: 0.6; }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--plum);
+      box-shadow: 0 0 0 3px rgba(123,115,204,0.12);
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      margin-top: 0.35rem;
+      opacity: 0.7;
+    }
+
+    .track-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+    .track-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 0.85rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+    }
+    .track-option:has(input:checked) {
+      border-color: var(--plum);
+      background: rgba(123,115,204,0.08);
+      color: var(--ink);
+    }
+    .track-option input { accent-color: var(--plum); }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .submit-btn:hover {
+      background: #A83E28;
+      box-shadow: 0 6px 24px rgba(196,82,58,0.3);
+      transform: translateY(-1px);
+    }
+    .submit-btn:active { transform: translateY(0); }
+
+    .form-footer {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+      margin-top: 1.25rem;
+      line-height: 1.6;
+      opacity: 0.75;
+    }
+    .form-footer a { color: var(--plum); text-decoration: none; }
+    .form-footer a:hover { text-decoration: underline; }
+
+    /* Success state */
+    .success-state {
+      display: none;
+      text-align: center;
+      padding: 1rem 0;
+    }
+    .success-state .check {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--plum), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 1.4rem;
+    }
+    .success-state h3 {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .success-state p {
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+    }
+
+    /* ── WHAT IS DRAWN ── */
+    .about {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+    @media (max-width: 640px) { .about-grid { grid-template-columns: 1fr; } }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--plum);
+      margin-bottom: 1.25rem;
+    }
+
+    .about h2 {
+      font-family: 'Cormorant Garant', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+    }
+    .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card h3 {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    .card p {
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+      line-height: 1.65;
+    }
+
+    /* ── IDENTITY SECTION (for Stripe) ── */
+    .identity-section {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+    .identity-inner { max-width: 620px; margin: 0 auto; }
+    .identity-section h2 {
+      font-family: 'Cormorant Garant', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 400;
+      margin: 1rem 0;
+      letter-spacing: -0.02em;
+    }
+    .identity-section p {
+      font-size: 0.93rem;
+      color: var(--ink-soft);
+      line-height: 1.75;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 3rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .footer-links a {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">Drawn</a>
+  <a href="#apply" class="nav-cta">Apply for access</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="portrait-ring">
+    <svg viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Stylized figure silhouette -->
+      <ellipse cx="44" cy="32" rx="13" ry="14" fill="rgba(255,255,255,0.35)"/>
+      <path d="M18 78 C18 58 26 50 44 50 C62 50 70 58 70 78" fill="rgba(255,255,255,0.25)"/>
+      <!-- Subtle connection lines -->
+      <circle cx="44" cy="32" r="16" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-dasharray="3 4"/>
+    </svg>
+  </div>
+
+  <p class="eyebrow">Early access · 2026</p>
+
+  <h1>Start drawing <em>you.</em></h1>
+
+  <p class="hero-sub">
+    A new kind of connection app — built around real conversation,
+    not swipes. For Millennials who want friendships and relationships that actually go somewhere.
+  </p>
+
+  <!-- WAITLIST FORM -->
+  <div class="form-card" id="apply">
+    <form id="waitlistForm" action="https://formspree.io/f/xpqonlpj" method="POST">
+      <div class="form-row">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" name="email"
+               placeholder="you@example.com" required />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="city">Your city</label>
+        <input class="form-input" type="text" id="city" name="city"
+               placeholder="San Francisco, New York…" required />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">What are you looking for?</label>
+        <div class="track-options">
+          <label class="track-option">
+            <input type="checkbox" name="track" value="friends" />
+            New friends
+          </label>
+          <label class="track-option">
+            <input type="checkbox" name="track" value="romance" />
+            Something more
+          </label>
+          <label class="track-option">
+            <input type="checkbox" name="track" value="honestly_not_sure" />
+            Honestly not sure
+          </label>
+          <label class="track-option">
+            <input type="checkbox" name="track" value="both" />
+            Both
+          </label>
+        </div>
+        <p class="form-hint">No right answer. This is just between you and the algorithm.</p>
+      </div>
+
+      <button type="submit" class="submit-btn">Apply for early access →</button>
+
+      <p class="form-footer">
+        Your city helps us launch where you are first.<br />
+        By applying you agree to our <a href="/privacy.html">Privacy Policy</a>.
+        We will never sell your data.
+      </p>
+    </form>
+
+    <div class="success-state" id="successState">
+      <div class="check">✦</div>
+      <h3>You're on the list.</h3>
+      <p>We'll be in touch when Drawn opens in your city.<br />Good things take time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about">
+  <p class="section-label">What is Drawn</p>
+  <h2>The connection app built for the long game.</h2>
+
+  <div class="about-grid">
+    <div class="card">
+      <div class="card-icon">◎</div>
+      <h3>Real conversation first</h3>
+      <p>Your first connection is a voice or video call — not a message thread that goes nowhere. Drawn is built around actually talking.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">◇</div>
+      <h3>AI that steps back</h3>
+      <p>Drawn's AI helps you plan, think things through, and find your footing — then gets out of the way. The goal is always the real-world connection.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">◈</div>
+      <h3>Built around trust</h3>
+      <p>Every user is age-verified. Every connection is earned. No swiping, no ghosting culture, no optimizing for engagement at the expense of your time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- IDENTITY / TRUST SECTION -->
+<section class="identity-section">
+  <div class="identity-inner">
+    <p class="section-label">Trust and safety</p>
+    <h2>Why Drawn verifies identity</h2>
+    <p>
+      Drawn uses Stripe Identity to verify that every user is who they say they are
+      and meets the minimum age requirement for the tracks they've selected.
+      This is not optional — it's foundational to the product we're building.
+    </p>
+    <p>
+      Your identity document is processed securely by Stripe and is never stored
+      on Drawn's servers. We receive only a verification result — not your document.
+      Full details are in our <a href="/privacy.html" style="color:var(--plum)">Privacy Policy</a>.
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Drawn</span>
+  <ul class="footer-links">
+    <li><a href="/privacy.html">Privacy Policy</a></li>
+    <li><a href="/cdn-cgi/l/email-protection#335b565f5f5c73545647574152445d1d524343">Contact</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 Drawn. All rights reserved.</span>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const form = document.getElementById('waitlistForm');
+  const success = document.getElementById('successState');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('.submit-btn');
+    btn.textContent = 'Applying…';
+    btn.disabled = true;
+
+    try {
+      const data = new FormData(form);
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        form.style.display = 'none';
+        success.style.display = 'block';
+      } else {
+        btn.textContent = 'Try again';
+      
